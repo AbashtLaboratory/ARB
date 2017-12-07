@@ -1,0 +1,18 @@
+
+--Group_1_Name HM_A
+--Group_2_Name HM_U
+--Group_1_Max_Exclusion 2
+--Group_2_Max_Exclusion 2
+--Fold_Change_Cutoff 1.3
+--Statistically_Significant_Data_Only true
+--Input_File_Location /Users/Papah/Dropbox/CuffDiff_Software_BMC_Bioinformatics_Article/Final_Version_12-7-2017/Dataset1_6u_vs_5a/
+--Output_File_Location /Users/Papah/Dropbox/CuffDiff_Software_BMC_Bioinformatics_Article/Final_Version_12-7-2017/Dataset1_6u_vs_5a/
+
+Note:
+The "Maximum Number to Samples to Exclude" cannot exceed the number of 
+samples in that dataset otherwise the program will crash out.
+
+The "Maximum Percentile to Exclude in Both Conditions" refers to the combination
+of both groups of samples, so for example if the setting is 25% (input as 0.25).
+If both groups of samples exclude 25% of their sample sets the program will record
+that combination of samples as "NoTest". 
