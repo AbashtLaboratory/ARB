@@ -9,6 +9,13 @@
 
 #Please contact Dr. Behnam Abasht (abasht@udel.edu) with any questions or concerns.
 
+#Contributors to the Program Development:
+#Behnam Abasht conceived the idea of the program
+#M. Joseph Tomlinson IV was lead developer of the code and overall implementation of program
+#Michael Babak Papah played a lead role in development, testing and implementation of program 
+#Jose Daniel Chazi Capelo and Danielle Novick assisted with development, testing and implementation of program
+
+
 #Description of Program
 #ARB is a python based tool for assessment of data behavior and prioritization of differentiallly expressed genes which uses output files from
 #Cuffdiff (Trapnell 2013).  
