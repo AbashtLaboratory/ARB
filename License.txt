@@ -1,0 +1,44 @@
+Copyright (c) 
+	2017 by the University of Delaware (http://www.udel.edu/)
+	Contributors: Michael Papah Babak, M. Joseph Tomlinson IV, 
+		Jose Daniel Chazi Capelo, Danielle Novick & Behnam Abasht, 
+	Affiliation: Integrative Avian Biology Lab, Behnam Abasht PI 
+	URL: http://sites.udel.edu/abashtlab/, https://github.com/AbashtLaboratory/ARB
+	Citation: "Program Paper Submitted for Review"
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+	1. Redistributions of source code must retain the above copyright notice, 
+    	this list of conditions and the following disclaimer.
+
+	2. Redistributions in binary form must reproduce the above copyright notice,
+	this list of conditions and the following disclaimer in the documentation
+	and/or other materials provided with the distribution.
+
+	3. If this code is used to create a published work, one or both of the
+	following papers must be cited.
+	
+		Papah, M.B., Tomlinson, M.J., Chazi Capelo, J.D., Novick, D., Abasht, B. 
+		ARB: A New Tool For Gene Prioritization And Analysis of RNA-Seq Data Behavior. 
+		2017. https://github.com/AbashtLaboratory/ARB
+
+		Note: This reference will updated at a later date with the official 
+		publication of the article. 
+
+	4. Permission of the PI must be obtained before this software is used
+    	for commercial purposes. (Contact: Dr. Behnam Abasht abasht@udel.edu)
+
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+OF THE POSSIBILITY OF SUCH DAMAGE.
