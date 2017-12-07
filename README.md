@@ -181,7 +181,7 @@ This file is a log file of all the various combinations of the samples that get 
 
 IGSI is calculated with the following equation:
 
-![equation](http://www.sciweavers.org/tex2img.php?eq=IGSI%20%3D%20%5Cfrac%7B%5Ctextup%7BGroup%201%20Samples%7D%20-%20%5Ctextup%7BSamples%20Excluded%7D%7D%7B%5Ctextup%7BGroup%201%20Samples%7D%7D%20%2B%20%5Cfrac%7B%5Ctextup%7BGroup%202%20Samples%7D-%5Ctextup%7BSamples%20Excluded%7D%7D%7B%5Ctextup%7BGroup%202%20Samples%7D%7D&bc=White&fc=Black&im=png&fs=12&ff=arev&edit=0)
+IGSI = (Group_1_Samples - Samples_Excluded)/(Group_1_Samples) + (Group_2_Samples - Samples_Excluded)/(Group_2_Samples)
 
 *NOTE:* For example no samples removed from either grouping, the score will be 2 and if 50% of samples are removed from both groups the score is 1.
 
