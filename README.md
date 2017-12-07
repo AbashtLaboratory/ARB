@@ -181,7 +181,9 @@ This file is a log file of all the various combinations of the samples that get 
 
 IGSI is calculated with the following equation:
 
+<pre>
 IGSI = (Group_1_Samples - Samples_Excluded)/(Group_1_Samples) + (Group_2_Samples - Samples_Excluded)/(Group_2_Samples)
+<pre>
 
 *NOTE:* For example no samples removed from either grouping, the score will be 2 and if 50% of samples are removed from both groups the score is 1.
 
