@@ -36,12 +36,7 @@
 #ranges. If the ranges overlap, samples are removed from either group until an optimal IGSI is found or a cut-off threshold 
 #is breached and no IGSI is calculated. 
 
-#Part 3. IQR Outlier Analysis
-#Outliers are identified using Interquartile Range (IQR) (Tukey 1977). Samples are examined on a per-gene basis to
-#identify moderate outliers (vale = IQR x 1.5-3.0) and extreme outliers (value > IQR x 3.0) (Barbato 2010). To reduce skewness
-#of the data, the samples are log2 transformed. Prior to transformation, a value of 1 is added to all samples to avoid taking a log of zero. 
-
-#Part 4. Rank-Order Analysis
+#Part 3. Rank-Order Analysis
 #The overall rank-order of samples per gene is calculated and averaged across FPKM values. This helps to identify samples that 
 #consistently show higher or lower expression across genes. Additionally, the tallies of samples per rank are calculated, to show 
 #the overall spread of the data . The program automatically adjusts for +/- log2(fold change) value reported by Cuffdiff, so the 
@@ -51,11 +46,9 @@
 
 ##References
 
-#Barbato G, Barini EM, Genta G, Levi R. (2011). Features and performance of some outlier detection methods. Journal of Applied Statistics, 38, 2133–49.
-
 #Trapnell, C., Hendrickson, D. G., Sauvageau, M., Goff, L., Rinn, J. L., & Pachter, L. (2013). Differential analysis of gene regulation at transcript resolution with RNA-seq. Nature biotechnology, 31(1), 46-53.
 
-#Tukey, J. W. (1977). Exploratory data analysis. Reading, MA: Addison-Wesley Pub. Co.
+
 
 
 ################################################################################################################################
@@ -85,9 +78,12 @@ def help_menu_prompt ():
     print ("")
     print ("")
     print ("Optional Parameters")
+    print ("--Input_Type (default setting = Cuffdiff)")
     print ("--Group_1_Max_Exclusion (default setting = 1)")
     print ("--Group_2_Max_Exclusion (default setting = 1)")
-    print ("--Fold_Change_Cutoff (default setting = 1.3)")
+####################Turned off fold-change setting#####################################
+    #print ("--Fold_Change_Cutoff (default setting = 1.3)")
+#######################################################################################
     print ("--Statistically_Significant_Data_Only (default setting = true)")
     print ("--Input_File_Location (default setting = local directory)")
     print ("--Output_File_Location (default setting = local directory) ")
@@ -97,13 +93,18 @@ def help_menu_prompt ():
     print ("VERY IMPORTANT when putting pathways of the file \\ at the end is extremely important!!!")
     print ("")
     print ("Definition of Parameters")
+    print ("--Input_Type - Setting allows for the change of input files, so a user can supply non-Cuffdiff derived data.")
+    print ("    Specifically a user places their data into the supplied template files format for running and changes the")
+    print ("    setting to 'Custom'")
     print ("Group_1_Name - Name of the first group of samples analyzed by Cuffdiff aka the ""condition"" (see read_groups.info file)")
     print ("Group_2_Name - Naming of the second group of samples analyzed by Cuffdiff aka the ""condition"" (see read_groups.info file)")
     print ("Group_1_Max_Exclusion - The maximum number of samples to exclude from group 1")
     print ("    cannot exceed number of samples in group")
     print ("Group_2_Max_Exclusion - The maximum number of samples to exclude from group 2")
     print ("    cannot exceed number of samples in group")
-    print ("Fold_Change_Cutoff - Threshold for fold change between the two groups")
+####################Turned off fold-change setting#####################################
+    #print ("Fold_Change_Cutoff - Threshold for fold change between the two groups")
+#######################################################################################
     print ("Statistically_Significant_Data_Only - filter the Cuffdiff dataset for only significant genes or not")
     print ("    acceptable inputs are 'true' or 'false'")
     print ("Input_File_Location - Location of Cuffdiff data ---REMEMBER forward slash /")
@@ -117,7 +118,9 @@ def help_menu_prompt ():
     print ("--Group_2_Name Green_Chickens \\")
     print ("--Group_1_Max_Exclusion 1 \\")
     print ("--Group_2_Max_Exclusion 1 \\")
-    print ("--Fold_Change_Cutoff 1.3 \\")
+####################Turned off fold-change setting#####################################
+    #print ("--Fold_Change_Cutoff 1.3 \\")
+#######################################################################################
     print ("--Statistically_Significant_Data_Only true \\")
     print ("--Input_File_Location your/favorite/directory/ \\")
     print ("--Output_File_Location your/favorite/output/directory/ \\")
@@ -157,9 +160,10 @@ def test_Number_Input(value):
 def parsing_input_parameter_file(program_parameters):
     
     #default parameters (will be overridden by user---input)
+    Input_Type='Cuffdiff'
     Group_1_Max_Exclusion=1
     Group_2_Max_Exclusion=1
-    Fold_Change_Cutoff=1.3
+    Fold_Change_Cutoff=0
     Maximum_Percentile_to_Exclude=0.25
     data_Statistical_Filter='true'
     #Currenting working directory default parameters (same directory as program)
@@ -240,6 +244,9 @@ def parsing_input_parameter_file(program_parameters):
                 elif inputs[0] == "Statistically_Significant_Data_Only":
                     data_Statistical_Filter=inputs[1]
 
+                elif inputs[0] == "Input_Type":
+                    Input_Type=inputs[1]
+
                 elif inputs[0] == "help" or inputs[0]=="h" or inputs[0]=="Help":
                     printing_help_menu=help_menu_prompt()
 
@@ -259,7 +266,7 @@ def parsing_input_parameter_file(program_parameters):
            'Group_2_Name':Group_2_Name, 'Group_1_Max_Exclusion':Group_1_Max_Exclusion, \
            'Group_2_Max_Exclusion':Group_2_Max_Exclusion, 'Fold_Change_Cutoff':Fold_Change_Cutoff, \
            'input_File_Location':Input_File_Location, 'Output_File_Location':Output_File_Location, \
-           'data_Statistical_Filter':data_Statistical_Filter}
+           'data_Statistical_Filter':data_Statistical_Filter, 'Input_Type':Input_Type}
 
 
 #######################Function to parse apart user input inputed on the qsub file or command line##############################
@@ -267,9 +274,10 @@ def parsing_input_parameter_file(program_parameters):
 def parsing_input(program_parameters):
 
     #default parameters (will be overridden by user---input)
+    Input_Type='Cuffdiff'
     Group_1_Max_Exclusion=1
     Group_2_Max_Exclusion=1
-    Fold_Change_Cutoff=1.3
+    Fold_Change_Cutoff=0
     data_Statistical_Filter='true'
     #Currenting working directory default parameters (same directory as program)
     working_directory= os.getcwd()
@@ -340,7 +348,10 @@ def parsing_input(program_parameters):
             Input_File_Location=inputs[1]
 
         elif inputs[0] == "Output_File_Location":
-            Output_File_Location=inputs[1] 
+            Output_File_Location=inputs[1]
+
+        elif inputs[0] == "Input_Type":
+                    Input_Type=inputs[1]
 
         elif inputs[0] == "help" or inputs[0]=="h" or inputs[0]=="Help":
             printing_help_menu=help_menu_prompt()
@@ -356,7 +367,7 @@ def parsing_input(program_parameters):
            'Group_2_Name':Group_2_Name, 'Group_1_Max_Exclusion':Group_1_Max_Exclusion, \
            'Group_2_Max_Exclusion':Group_2_Max_Exclusion, 'Fold_Change_Cutoff':Fold_Change_Cutoff, \
            'input_File_Location':Input_File_Location, 'Output_File_Location':Output_File_Location, \
-           'data_Statistical_Filter':data_Statistical_Filter}
+           'data_Statistical_Filter':data_Statistical_Filter, 'Input_Type':Input_Type}
 
 ################################################################################################################################
 ###############################################Part 1. Parsing FPKM Data #######################################################
@@ -531,7 +542,8 @@ def checkindexp(indexpdata,g1head,g2head,g1exmax,g2exmax,tfc):
     out_file_gene_results= open(indexpdata[:-4]+'_IGSI_FoldChange.txt','w')
     
     #Printing headers to the gene expression list file
-    out_file_gene_results.write('Gene\tIGSI_Value\tCoeffVar_Grp_1\tCoeffVar_Grp_2\tFlag_Warning\tIGSI_Fold-Change(Grp1/Grp2)\tIGSI_log2FC(Grp1/Grp2)\tIGSI_Abs(log2FC(Grp1/Grp2))\tGrp1_Exclude\tGrp2_Exclude\n')
+    #out_file_gene_results.write('Gene\tIGSI_Value\tCoeffVar_Grp_1\tCoeffVar_Grp_2\tFlag_Warning\tIGSI_Fold-Change(Grp1/Grp2)\tIGSI_log2FC(Grp1/Grp2)\tIGSI_Abs(log2FC(Grp1/Grp2))\tGrp1_Exclude\tGrp2_Exclude\n')
+    out_file_gene_results.write('Gene\tIGSI_Value\tCoeffVar_Grp_1\tGrp1_Exclude\tCoeffVar_Grp_2\tGrp2_Exclude\n')
     
     #Starting setting up the program to Run
     #Group 1 Index 
@@ -692,8 +704,9 @@ def checkindexp(indexpdata,g1head,g2head,g1exmax,g2exmax,tfc):
                         cv_group_1=group_1_std /(average(g1com))*100
                         cv_group_2=group_2_std /(average(g2com))*100
 
-                        out_log_file.write('|'+str(foldchange))
-                        out_log_file.write('|Pass')
+                        #Turning off Fold-change reports
+                        #out_log_file.write('|'+str(foldchange))
+                        #out_log_file.write('|Pass')
                     
                         flag = 'Pass'
                         
@@ -711,8 +724,9 @@ def checkindexp(indexpdata,g1head,g2head,g1exmax,g2exmax,tfc):
                             cv_group_1=group_1_std /(average(g1com))*100
                             cv_group_2= 0
 
-                            out_log_file.write('|'+str(foldchange))
-                            out_log_file.write('|FLAG-Mean_Grp_2_Zero')
+                            #Turning off Fold-change reports
+                            #out_log_file.write('|'+str(foldchange))
+                            #out_log_file.write('|FLAG-Mean_Grp_2_Zero')
 
                             flag = 'FLAG-Mean_Grp_2_Zero'
                     
@@ -727,16 +741,14 @@ def checkindexp(indexpdata,g1head,g2head,g1exmax,g2exmax,tfc):
                             cv_group_1=0
                             cv_group_2=group_2_std /(average(g2com))*100
 
-                            out_log_file.write('|'+str(foldchange))
-                            out_log_file.write('|FLAG-Mean_Grp_1_Zero')
+                            #Turning off Fold-change reports
+                            #out_log_file.write('|'+str(foldchange))
+                            #out_log_file.write('|FLAG-Mean_Grp_1_Zero')
 
                             flag = 'FLAG-Mean_Grp_1_Zero'
-                    
-                    #Comparing the fold change to the cutoff provided by the user input
-                    if abs(math.log(foldchange,10))> math.log(tfc,10):
-                        out_log_file.write('|Fold_Change_Sig')
-                        #finding the group combination with largest match ratio (IGSI) value (greatest value possible =2)
-                        if maxmr < match_test:
+
+                    #Re-arranged section of code when removing all fold change information
+                    if maxmr < match_test:
                             #added another filter level to find best value
                             #that finds the match ratio (IGSI) with greatest foldchange
                             if fold_change < foldchange:
@@ -747,10 +759,34 @@ def checkindexp(indexpdata,g1head,g2head,g1exmax,g2exmax,tfc):
                                 cv_grp1_var=cv_group_1
                                 cv_grp2_var=cv_group_2
                                 final_flag=flag
-                    else:
-                        out_log_file.write('|Fold_Change_Not_Sig') 
+                        
+##################################Turning off Fold-Change Analysis of Code###########################                    
+##                    #Comparing the fold change to the cutoff provided by the user input
+##                    if abs(math.log(foldchange,10))> math.log(tfc,10):
+##
+##                        
+##                        out_log_file.write('|Fold_Change_Sig')
+##                        #finding the group combination with largest match ratio (IGSI) value (greatest value possible =2)
+##
+##                        if maxmr < match_test:
+##                            #added another filter level to find best value
+##                            #that finds the match ratio (IGSI) with greatest foldchange
+##                            if fold_change < foldchange:
+##                                maxmr = match_test
+##                                fold_change = foldchange
+##                                g1ex = m
+##                                g2ex = j
+##                                cv_grp1_var=cv_group_1
+##                                cv_grp2_var=cv_group_2
+##                                final_flag=flag
+##                    else:
+##              
+##                        out_log_file.write('|Fold_Change_Not_Sig')
+##                        pass
+####################################################################################################
+
                 else:
-                    out_log_file.write('\tNo_Combination')
+                    out_log_file.write('\tNo_Combination_(<'+str(lowest_IGSI)+')')
                     no_combo_found_counter+=1
                     #print ("No_Match")
         if no_combo_found_counter==numb_of_combos:
@@ -814,7 +850,6 @@ def printing_Gene_Exclusion_Per_Sample(indexpdata, idlist, sample_exclusion_list
     out_file_ind.write('The number of genes with a passing IGSI value: '+str(gene_counter-gene_no_combo_counter))   
     out_file_ind.write('\n')    
     out_file_ind.write('\n')
-    out_file_ind.write('\n')
     out_file_ind.close()
 
 #function prints out the gene expression results for comparison of samples (affected versus unaffected)
@@ -825,25 +860,39 @@ def print_gene_results(inputf, i, out_file_gene_results, maxmr, fold_change, g1e
 
     #dealing with No Combination Found in the data situations
     if maxmr == 0.0:
-        out_file_gene_results.write('\t'+"<"+str(lowest_IGSI)+'\tNA\tNA\tNo_Combination\t'
-                                    'NA\tNA\tNA\tNA\tNA\n')
+
+#####################################Turning off long output because fold-change removed####################
+##        out_file_gene_results.write('\t'+"<"+str(lowest_IGSI)+'\tNA\tNA\tNo_Combination\t'
+##                                    'NA\tNA\tNA\tNA\tNA\n')
+############################################################################################################
+        
+        out_file_gene_results.write('\t'+"<"+str(lowest_IGSI)+'\tNA\tNA\tNA\tNA\n')
     else:
         #prints the max matching test value to file  
         out_file_gene_results.write('\t'+str(maxmr))
 
-        #prints the coefficient of variation for group 1 and group 2
-        out_file_gene_results.write('\t'+str(cv_grp1_var)+"%")
-        out_file_gene_results.write('\t'+str(cv_grp2_var)+"%")
+#######################################Moved around the output########################################
+##        #prints the coefficient of variation for group 1 and group 2
+##        out_file_gene_results.write('\t'+str(cv_grp1_var)+"%")
+##        out_file_gene_results.write('\t'+str(cv_grp2_var)+"%")
+######################################################################################################
 
-        out_file_gene_results.write('\t'+final_flag)
+########################################Commenting Out Fold_Change Stuff for Now#############################
+##        out_file_gene_results.write('\t'+final_flag)
+##        
+##
+##        #prints the best fold change value
+##        out_file_gene_results.write('\t'+str(fold_change))
+##        if fold_change != 0.0:
+##            out_file_gene_results.write('\t'+str(math.log(fold_change,2))+'\t'+str(abs(math.log(fold_change,2))))
+##        else:
+##            out_file_gene_results.write('\t.')
+#######################################################################################################
+
         
-        #prints the best fold change value
-        out_file_gene_results.write('\t'+str(fold_change))
-        if fold_change != 0.0:
-            out_file_gene_results.write('\t'+str(math.log(fold_change,2))+'\t'+str(abs(math.log(fold_change,2))))
-        else:
-            out_file_gene_results.write('\t.')
-
+        #prints the coefficient of variation for group 1
+        out_file_gene_results.write('\t'+str(cv_grp1_var)+"%")
+        
         #Prints the range of samples that were excluded from analysis
         #The printing depends on the "judging value" which was determined based on which
         #grouping had the higher average expression level
@@ -858,6 +907,10 @@ def print_gene_results(inputf, i, out_file_gene_results, maxmr, fold_change, g1e
             else:
                 out_file_gene_results.write(','+g1exp[-m-1][0])
                 exind.append(g1exp[-m-1][0])
+
+        #prints the coefficient of variation for group 1
+        out_file_gene_results.write('\t'+str(cv_grp2_var)+"%")
+
         #Prints the number of samples excluded for group 2
         out_file_gene_results.write('\t'+str(g2ex))
         for m in range(g2ex):
@@ -964,6 +1017,46 @@ def filter_Cuff_Diff(cuffDiff_Gene_Stats_Reports, statistical_filter, statistica
                 pass 
 
     out_file_Filtered.close()
+
+#Matching the Merged Data Cuff Diffs "gene_exp.diff" file and the output from
+#sorted FPKM data. The data gets sorted as a dictionary (key=gene) and then the two files
+#are compared for overlapping based on the statistical significance setting. If setting is "true"
+# only significant genes from CuffDiff are outputed from the FPKM data for further analysis,
+# if the setting is "false" all genes are analyzed. 
+def filter_Custom(cuffDiff_Gene_Stats_Reports, statistical_filter, statistical_Name, input_File_Location):
+    #parsed_data_file=Output_File_Location+statistical_Name+'.txt'
+    out_file_Filtered=open(Output_File_Location+statistical_Name+'.txt','w')
+
+    #Getting data from the parsed FPKM data file
+    parsed_gene_Expression_Data=retrieve_data(input_File_Location+"norm_gene_counts.txt")
+    parsed_Gene_Header=parsed_gene_Expression_Data['header_info']
+    parsed_Gene_Dic=parsed_gene_Expression_Data['file_dic']
+
+    #Getting data from the gene_exp.diff from CuffDiff
+    gene_Exp_Diff=retrieve_data(cuffDiff_Gene_Stats_Reports)
+    gene_Exp_Diff_Header=gene_Exp_Diff['header_info']
+    gene_Exp_Dic=gene_Exp_Diff['file_dic']
+
+    out_file_Filtered.write(parsed_Gene_Header +'\n')
+    #Nested loops to sort through the data, but only prints one files results based on the other files data
+    for x in (gene_Exp_Dic):
+        #Values are not tab seperated and need to parsed to find the correct column
+        gene_Exp_Data = (gene_Exp_Dic[x].split("\t"))
+        #Column (index 13) is where a gene is reported as significant, identifying results and filtering
+        # all non-significant data values
+        if gene_Exp_Data[13]==statistical_filter:
+            continue
+            print (gene_Exp_Dic[x])
+        #identifying genes found in the parsed FPKM file that overlap with significant genes and only
+        # printing out significant genes to be analyzed in the program
+        for y in (parsed_Gene_Dic):
+            if x == y :
+                out_file_Filtered.write(parsed_Gene_Dic[y] + '\n')
+            else:
+                pass 
+
+    out_file_Filtered.close()
+
 
 
 #Creating Output file for Merged Data Cuff Diffs "gene_exp.diff" file and the output from
@@ -1405,12 +1498,12 @@ def main():
     #User can now supply parameter file or submit using a qsub/sbatch file on HPC environment
 
     #Program first test to see if the parameter file is present
-    verdict=os.path.isfile('Analysis_CD_Data_Parameter_File.txt')
+    verdict=os.path.isfile('ARB_Parameter_File.txt')
 
     #If Program finds the parameter file it then parses it
     if verdict == True:
         #Code to pull in data from parameter file (TESTING ONLY)
-        parameter_stuff = parsing_input_parameter_file('Analysis_CD_Data_Parameter_File.txt')
+        parameter_stuff = parsing_input_parameter_file('ARB_Parameter_File.txt')
         print ("")
         print ("Loading input from User Provided Parameter File")
         print ("")
@@ -1425,6 +1518,9 @@ def main():
         print (user_input)
         parameter_stuff=parsing_input(user_input)
 
+    #Type of Program being analyzed
+    Input_Type=parameter_stuff['Input_Type']
+
     #Retrieving parameters from data (either inputs accepted)
     sample_group_1_name = parameter_stuff['Group_1_Name']
     sample_group_2_name = parameter_stuff['Group_2_Name']
@@ -1437,15 +1533,19 @@ def main():
     global Output_File_Location
     Output_File_Location = parameter_stuff['Output_File_Location']
     data_Statistical_Filter=parameter_stuff['data_Statistical_Filter']
+    
 
     #Testing Print of all variables
     print ("FOLLOWING PROGRAM PARAMETERS")
+    print ("The input type of data is:", Input_Type)
     print ("The name of sample group 1 is:", sample_group_1_name)
     print ("The name of sample group 2 is:", sample_group_2_name)
     #Fixing the +1 for implementing prior code to report back proper number from user
     print ("The Maximum Number of Samples to Exclude from Group 1 is:", (group_1_exclusion_max-1))
     print ("The Maximum Number of Samples to Exclude from Group 2 is:", (group_2_exclusion_max-1))
-    print ("The fold change cutoff for the data is:", fold_change_cutoff)
+##############Turned off fold-change setting########################################
+    #print ("The fold change cutoff for the data is:", fold_change_cutoff)
+####################################################################################
     print ("The data will be filtered for statistical significance:", data_Statistical_Filter)
     print ("")
     print ("Directory Locations")
@@ -1472,58 +1572,124 @@ def main():
         print ("Acceptable inputs are 'true' or 'false'")
         sys.exit()
 
-    print ("")
-    print ("ARB is now analyzing the data")
+    
 
-    #Input File Locations
-    gene_read_group_tracking=input_File_Location+'genes.read_group_tracking'
-    read_groups_info=input_File_Location+'read_groups.info'
-    cuffDiff_Gene_Stats_Reports=input_File_Location+'gene_exp.diff'
+    if str(Input_Type)=='Custom':
+        
+        print ("")
+        print ("ARB is now analyzing the data using custom suppplied data")
+           
+        #Input file locations
+        cuffDiff_Gene_Stats_Reports=input_File_Location+'gene_exp.diff'
+        
+        #Merging Parsed_Data with CuffDiff Gene Stats Report of the data based on statistical test setting
+        merge_Final_Results=filter_Custom(cuffDiff_Gene_Stats_Reports, statistical_filter, statistical_Name, input_File_Location)
 
-    #Calling Functions for data analysis
-    cfdirdcksing2(gene_read_group_tracking, read_groups_info, "FPKM_Samples.txt",Output_File_Location)
+        parsed_data_file=Output_File_Location+statistical_Name+'.txt'
+        checkindexp(parsed_data_file,sample_group_1_name,sample_group_2_name,group_1_exclusion_max, group_2_exclusion_max,fold_change_cutoff)
 
-    #Merging Parsed_Data with CuffDiff Gene Stats Report of the data based on statistical test setting
-    merge_Final_Results=filter_Cuff_Diff(cuffDiff_Gene_Stats_Reports, statistical_filter, statistical_Name,Output_File_Location)
+        #Merging of the final results of the data
+        merge_Final_Results=merge_Cuff_Diff_Match(cuffDiff_Gene_Stats_Reports, statistical_Name,Output_File_Location)
 
-    parsed_data_file=Output_File_Location+statistical_Name+'.txt'
-    checkindexp(parsed_data_file,sample_group_1_name,sample_group_2_name,group_1_exclusion_max, group_2_exclusion_max,fold_change_cutoff)
+################################Turns off Outlier Part of Code####################################
+##        #Running All the Outlier Functions of the Code for Analysis
+##        sample_outlier_dic=sample_outlier_dic_func(parsed_data_file)
+##        igsi_dict=retrieve_igsi_data(parsed_data_file[:-4]+'_IGSI_FoldChange.txt')
+##                                     
+##        sample_outlier_results=outlier_test(parsed_data_file, sample_outlier_dic, Output_File_Location, statistical_Name, igsi_dict)
+##        sample_outlier_dic=sample_outlier_results['sample_outlier_dic']
+##        gene_counter=sample_outlier_results['gene_counter']
+##
+##        printing_outlier_dictionary(parsed_data_file, sample_outlier_dic, gene_counter)
+##################################################################################################
 
-    #Merging of the final results of the data
-    merge_Final_Results=merge_Cuff_Diff_Match(cuffDiff_Gene_Stats_Reports, statistical_Name,Output_File_Location)
+        #Running All the Rank Order Functions of the Code for Analysis
+        gene_FC_dic=retrieve_gene_FC_dic(Output_File_Location, statistical_Name)
 
-    #Running All the Outlier Functions of the Code for Analysis
-    sample_outlier_dic=sample_outlier_dic_func(parsed_data_file)
-    igsi_dict=retrieve_igsi_data(parsed_data_file[:-4]+'_IGSI_FoldChange.txt')
-                                 
-    sample_outlier_results=outlier_test(parsed_data_file, sample_outlier_dic, Output_File_Location, statistical_Name, igsi_dict)
-    sample_outlier_dic=sample_outlier_results['sample_outlier_dic']
-    gene_counter=sample_outlier_results['gene_counter']
+        #Getting a dictionary of samples and sample list for future usage
+        rank_order_Stuff=create_Rank_Order_Dict(Output_File_Location, statistical_Name)
+        rank_order_Dict=rank_order_Stuff['rank_order_Dict']
+        sample_names=rank_order_Stuff['sample_names']
+     
+        rank_order_Dict= tally_rank_order(Output_File_Location, statistical_Name, rank_order_Dict, gene_FC_dic, sample_names)
 
-    printing_outlier_dictionary(parsed_data_file, sample_outlier_dic, gene_counter)
+        ####Getting the Ranks for Each Sample at Each Ranking Position
+        tallying_all_ranks=tallying_samples_per_rank(sample_names, Output_File_Location, statistical_Name)
+        tallying_dict=tallying_all_ranks['tallying_dict']
+        ranks=tallying_all_ranks['ranks']
 
-    #Running All the Rank Order Functions of the Code for Analysis
-    gene_FC_dic=retrieve_gene_FC_dic(Output_File_Location, statistical_Name)
+        #Print results from rank order tests
+        printing_rank_order(parsed_data_file, rank_order_Dict, tallying_dict, ranks)
 
-    #Getting a dictionary of samples and sample list for future usage
-    rank_order_Stuff=create_Rank_Order_Dict(Output_File_Location, statistical_Name)
-    rank_order_Dict=rank_order_Stuff['rank_order_Dict']
-    sample_names=rank_order_Stuff['sample_names']
- 
-    rank_order_Dict= tally_rank_order(Output_File_Location, statistical_Name, rank_order_Dict, gene_FC_dic, sample_names)
+        #Removes the parsed gene file created from Cuffdiff data
+        os.remove(Output_File_Location+statistical_Name+'.txt')
 
-    ####Getting the Ranks for Each Sample at Each Ranking Position
-    tallying_all_ranks=tallying_samples_per_rank(sample_names, Output_File_Location, statistical_Name)
-    tallying_dict=tallying_all_ranks['tallying_dict']
-    ranks=tallying_all_ranks['ranks']
+        #Removing the IGSI fold change file because was confusing for users
+        os.remove(parsed_data_file[:-4]+'_IGSI_FoldChange.txt')
+        
+        print ("ARB is done running, have a good day!")
 
-    #Print results from rank order tests
-    printing_rank_order(parsed_data_file, rank_order_Dict, tallying_dict, ranks)
+        sys.exit()
+        
+    else:
 
-    #Removes the parsed gene file created from Cuffdiff data
-    os.remove(Output_File_Location+statistical_Name+'.txt') 
+        print ("")
+        print ("ARB is now analyzing the data (Cuffdiff derived)")
+           
+        #Input File Locations
+        gene_read_group_tracking=input_File_Location+'genes.read_group_tracking'
+        read_groups_info=input_File_Location+'read_groups.info'
+        cuffDiff_Gene_Stats_Reports=input_File_Location+'gene_exp.diff'
 
-    print ("ARB is done running, have a good day!")
+        #Calling Functions for data analysis
+        cfdirdcksing2(gene_read_group_tracking, read_groups_info, "FPKM_Samples.txt",Output_File_Location)
+
+        #Merging Parsed_Data with CuffDiff Gene Stats Report of the data based on statistical test setting
+        merge_Final_Results=filter_Cuff_Diff(cuffDiff_Gene_Stats_Reports, statistical_filter, statistical_Name,Output_File_Location)
+
+        parsed_data_file=Output_File_Location+statistical_Name+'.txt'
+        checkindexp(parsed_data_file,sample_group_1_name,sample_group_2_name,group_1_exclusion_max, group_2_exclusion_max,fold_change_cutoff)
+
+        #Merging of the final results of the data
+        merge_Final_Results=merge_Cuff_Diff_Match(cuffDiff_Gene_Stats_Reports, statistical_Name,Output_File_Location)
+
+################################Turns off Outlier Part of Code####################################
+##        #Running All the Outlier Functions of the Code for Analysis
+##        sample_outlier_dic=sample_outlier_dic_func(parsed_data_file)
+##        igsi_dict=retrieve_igsi_data(parsed_data_file[:-4]+'_IGSI_FoldChange.txt')
+##                                     
+##        sample_outlier_results=outlier_test(parsed_data_file, sample_outlier_dic, Output_File_Location, statistical_Name, igsi_dict)
+##        sample_outlier_dic=sample_outlier_results['sample_outlier_dic']
+##        gene_counter=sample_outlier_results['gene_counter']
+##
+##        printing_outlier_dictionary(parsed_data_file, sample_outlier_dic, gene_counter)
+##################################################################################################
+
+        #Running All the Rank Order Functions of the Code for Analysis
+        gene_FC_dic=retrieve_gene_FC_dic(Output_File_Location, statistical_Name)
+
+        #Getting a dictionary of samples and sample list for future usage
+        rank_order_Stuff=create_Rank_Order_Dict(Output_File_Location, statistical_Name)
+        rank_order_Dict=rank_order_Stuff['rank_order_Dict']
+        sample_names=rank_order_Stuff['sample_names']
+     
+        rank_order_Dict= tally_rank_order(Output_File_Location, statistical_Name, rank_order_Dict, gene_FC_dic, sample_names)
+
+        ####Getting the Ranks for Each Sample at Each Ranking Position
+        tallying_all_ranks=tallying_samples_per_rank(sample_names, Output_File_Location, statistical_Name)
+        tallying_dict=tallying_all_ranks['tallying_dict']
+        ranks=tallying_all_ranks['ranks']
+
+        #Print results from rank order tests
+        printing_rank_order(parsed_data_file, rank_order_Dict, tallying_dict, ranks)
+
+        #Removes the parsed gene file created from Cuffdiff data
+        os.remove(Output_File_Location+statistical_Name+'.txt')
+        
+        #Removing the IGSI fold change file because was confusing for users
+        os.remove(parsed_data_file[:-4]+'_IGSI_FoldChange.txt')
+
+        print ("ARB is done running, have a good day!")
 
 main()
 
